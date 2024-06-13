@@ -153,7 +153,7 @@ module LedgerAccountable
       raise NotImplementedError, "Implement #{self.class.ledger_amount_attribute} in #{self.class.name}"
     end
 
-    ledger_amount_multiplier = self.class.ledger_type == :debit ? 1 : -1
+    ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
     ledger_amount_multiplier * (send(self.class.ledger_amount_attribute) || 0.0)
   end
 
@@ -161,7 +161,7 @@ module LedgerAccountable
   # stored on the LedgerAccountable object
   def net_ledger_amount
     previous_ledger_amount = attribute_was(self.class.ledger_amount_attribute)
-    ledger_amount_multiplier = self.class.ledger_type == :debit ? 1 : -1
+    ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
     ledger_amount_multiplier * (ledger_amount - (previous_ledger_amount || 0.0))
   end
 
