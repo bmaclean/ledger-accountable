@@ -2,7 +2,7 @@
 
 **_This gem is in prerelease stages, and should not yet be considered stable for production release._**
 
-`LedgerAccountable` is a Rails model concern that adds ledger functionality to any model.
+`LedgerAccountable` is a gem for recording ledger entries to store an accounting history in your Rails models.
 
 ## Installation
 

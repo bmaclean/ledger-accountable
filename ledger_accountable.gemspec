@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ['brendan.maclean@alumni.ubc.ca']
   spec.homepage      = 'https://github.com/bmaclean/ledger-accountable'
 
-  spec.summary       = 'Ledger functionality for Rails models'
-  spec.description   = 'Adds ledger functionalities to any model, tracking entries for both charges and credits.'
+  spec.summary       = 'Ledger accounting for Rails models'
+  spec.description   = 'LedgerAccountable is a gem for recording ledger entries to store an accounting history in your Rails models.'
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/bmaclean/ledger-accountable'
