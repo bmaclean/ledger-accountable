@@ -286,7 +286,7 @@ module LedgerAccountable
             owner: owner,
             ledger_item: self,
             entry_type: entry_type,
-            amount: amount,
+            amount_cents: amount,
             metadata: metadata
           )
         rescue ActiveRecord::RecordInvalid => e

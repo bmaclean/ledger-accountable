@@ -9,7 +9,7 @@ class LedgerEntry < ApplicationRecord
 
   store :metadata, coder: JSON
 
-  validates :amount, presence: true
+  validates :amount_cents, presence: true
   validates :entry_type, presence: true
 
   def to_itemized_s(line_type = :line)
