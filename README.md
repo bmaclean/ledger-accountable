@@ -1,5 +1,7 @@
 # LedgerAccountable
 
+**_This gem is in prerelease stages, and should not yet be considered stable for production release._**
+
 `LedgerAccountable` is a Rails model concern that adds ledger functionality to any model.
 
 ## Installation
