@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'ledger_accountable'
   spec.version       = LedgerAccountable::VERSION
   spec.authors       = ['Brendan Maclean']
-  spec.email         = ['brendan@alumni.ubc.ca']
+  spec.email         = ['brendan.maclean@alumni.ubc.ca']
   spec.homepage      = 'https://github.com/bmaclean/ledger-accountable'
 
   spec.summary       = 'Ledger functionality for Rails models'
@@ -22,8 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.6.5'
 
-  spec.add_dependency 'activerecord', '>= 6.0'
-  spec.add_dependency 'rails', '>= 6.0'
+  spec.add_dependency 'rails', ">= 6.0.0", "< 7.1"
 
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
