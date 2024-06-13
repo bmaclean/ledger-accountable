@@ -182,7 +182,7 @@ module LedgerAccountable
   #           YES
   #             => create a new ledger entry
   #   NO
-  #     => create a new ledger entry (overrides - think payment state)
+  #     => create a new ledger entry
 
   # by default, a LedgerAccountable should record a ledger entry when the ledger_attributes are changed
   # or if the update would otherwise change the ledger balance
