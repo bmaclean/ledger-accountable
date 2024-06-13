@@ -6,16 +6,18 @@ class LedgerEntry < ApplicationRecord
   belongs_to :ledger_item, polymorphic: true, optional: false
 
   enum entry_type: { addition: 0, deletion: 1, modification: 2 }
-  
+
   store :metadata, coder: JSON
-  
+
   validates :amount, presence: true
   validates :entry_type, presence: true
 
   def to_itemized_s(line_type = :line)
     I18n.t! "#{TRANSLATION_PREFIX}.#{ledger_item_type.constantize.model_name.param_key}.#{line_type}",
-           metadata.symbolize_keys
+            metadata.symbolize_keys
   rescue I18n::MissingTranslationData, I18n::MissingInterpolationArgument
-    ledger_item_type
+    I18n.t "#{TRANSLATION_PREFIX}.default.#{line_type}",
+           default: ledger_item_type,
+           model_name: ledger_item_type.humanize
   end
 end

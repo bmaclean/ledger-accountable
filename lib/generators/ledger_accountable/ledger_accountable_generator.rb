@@ -18,6 +18,10 @@ class LedgerAccountableGenerator < Rails::Generators::Base
     template 'initializer.rb', 'config/initializers/ledger_accountable.rb'
   end
 
+  def copy_localization_file
+    copy_file '../../../locale/en.yml', 'config/locales/ledger.en.yml'
+  end
+
   private
 
   def self.next_migration_number(path)

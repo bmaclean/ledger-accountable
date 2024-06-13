@@ -1,0 +1,7 @@
+en:
+  ledger:
+    default:
+      line: "%{model_name}"
+      addition: "%{model_name} added"
+      deletion: "%{model_name} removed"
+      modification: "%{model_name} modified"
