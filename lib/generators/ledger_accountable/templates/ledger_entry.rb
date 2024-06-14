@@ -1,4 +1,4 @@
-class LedgerEntry < ApplicationRecord
+class LedgerEntry < ActiveRecord::Base
   # used for internationalization via config/locales/ledger.en.yml
   TRANSLATION_PREFIX = 'ledger'.freeze
 
