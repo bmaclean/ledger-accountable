@@ -24,11 +24,20 @@
 #
 #   belongs_to :order
 #
-#   # Track ledger changes on order with the cost method and mark it as a debit
-#   track_ledger :order, amount: :cost, type: :debit
-#
+#   # Track ledger changes on order with the cost method and provide a net_amount
+#   # to dynamically compute net changes to its cost
+#   track_ledger :order,
+#                amount: :cost,
+#                net_amount: :net_cost_change,
+#                type: :debit
 #   def cost
 #     quantity * unit_price
+#   end
+# 
+#   private
+# 
+#   def net_cost_change
+#     cost - (quantity_was * unit_price_was)
 #   end
 # end
 #
@@ -75,6 +84,8 @@ module LedgerAccountable
     class_attribute :ledger_owner
     # the name of the attribute or method which determines the ledger amount
     class_attribute :ledger_amount_attribute
+    # the name of the attribute or method which determines the ledger amount
+    class_attribute :ledger_net_amount_method
     # the type of ledger entry to create - debit or credit
     class_attribute :ledger_type
     # attributes of the LedgerAccountable that should trigger a ledger entry when changed
@@ -95,7 +106,7 @@ module LedgerAccountable
     def validate_and_assign_ledger_owner(ledger_owner)
       # verify that an instance of the LedgerAccountable model can respond to ledger_owner
       unless instance_methods.include?(ledger_owner)
-        raise "LedgerAccountable model must respond to the provided value for ledger_owner (#{ledger_owner})."
+        raise "LedgerAccountable model #{model_name} must respond to the provided value for ledger_owner (#{ledger_owner})."
       end
 
       self.ledger_owner = ledger_owner
@@ -112,20 +123,17 @@ module LedgerAccountable
     end
 
     def validate_and_assign_ledger_amount_attribute(options)
-      if options[:amount].present?
-        raise 'LedgerAccountable amount must be an attribute or a method' if instance_methods.include?(options[:amount])
+      raise "track_ledger :amount is required in #{model_name}" unless options[:amount].present?
+      raise 'track_ledger :amount must be a symbol' unless options[:amount].is_a?(Symbol)
 
-        self.ledger_amount_attribute = options[:amount]
-      elsif instance_methods.include?(:amount)
-        raise "LedgerAccountable amount must be specified on #{self.class.name}"
-      end
+      self.ledger_amount_attribute = options[:amount]
     end
 
     def validate_net_amount_method(options)
-      # TODO: should we be able to provide a method to calculate the net amount?
-      return unless options[:net_amount].present? && !instance_methods.include?(options[:net_amount])
+      return unless options[:net_amount].present?
+      raise 'track_ledger :net_amount must be a symbol' unless options[:net_amount].is_a?(Symbol)
 
-      raise 'LedgerAccountable net_amount must be a method'
+      self.ledger_net_amount_method = options[:net_amount]
     end
 
     def validate_and_assign_ledger_attributes(options)
@@ -150,19 +158,31 @@ module LedgerAccountable
   # LedgerAccountable object
   def ledger_amount
     unless respond_to?(self.class.ledger_amount_attribute)
-      raise NotImplementedError, "Implement #{self.class.ledger_amount_attribute} in #{self.class.name}"
+      raise NotImplementedError,
+            "LedgerAccountable model '#{model_name}' specified #{self.class.ledger_amount_attribute} for track_ledger :amount, but does not implement #{self.class.ledger_amount_attribute}"
     end
 
     ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
-    ledger_amount_multiplier * (send(self.class.ledger_amount_attribute) || 0.0)
+    ledger_amount_multiplier * (send(self.class.ledger_amount_attribute) || 0)
   end
 
   # the amount to be recorded in the ledger entry on update; typically a net change to the dollar amount
   # stored on the LedgerAccountable object
   def net_ledger_amount
-    previous_ledger_amount = attribute_was(self.class.ledger_amount_attribute)
-    ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
-    ledger_amount_multiplier * (ledger_amount - (previous_ledger_amount || 0.0))
+    if self.class.ledger_net_amount_method
+      send(self.class.ledger_net_amount_method)
+    else
+      unless attribute_method?(self.class.ledger_amount_attribute.to_s)
+        # if a method is provided to compute ledger_amount,
+        logger.warn "
+LedgerAccountable model '#{model_name}' appears to use a method for track_ledger :amount, \
+but did not provide an option for :net_amount. This can lead to unexpected ledger entry amounts when modifying #{model_name}.
+"
+      end
+      previous_ledger_amount = attribute_was(self.class.ledger_amount_attribute)
+      ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
+      ledger_amount_multiplier * (ledger_amount - (previous_ledger_amount || 0))
+    end
   end
 
   private
@@ -233,7 +253,7 @@ module LedgerAccountable
   end
 
   def would_change_ledger_balance?
-    net_ledger_amount&.to_f != 0.00
+    net_ledger_amount != 0
   end
 
   # create an :addition ledger entry with the full ledger amount
@@ -341,7 +361,7 @@ module LedgerAccountable
     # warning log if the ledger owner is not set - the LedgerAccountable model must
     # include track_ledger
     if self.class.ledger_owner.blank?
-      Rails.logger.warn "LedgerAccountable model #{self.class.name} must include track_ledger to use ledger functionality"
+      Rails.logger.warn "LedgerAccountable model #{model_name} must include track_ledger to use ledger functionality"
     end
 
     self.class.ledger_owner.present?
