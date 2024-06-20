@@ -100,7 +100,7 @@ class LedgerAccountableTest < ActiveSupport::TestCase
     assert_equal 'track_ledger :amount is required in LedgerAccountableTest::MyModel', err.message
   end
 
-  test 'defaults ledger_type to credit if not specified' do
-    assert_equal :credit, Payment.ledger_type
+  test 'defaults transaction_type to credit if not specified' do
+    assert_equal :credit, Payment.transaction_type
   end
 end

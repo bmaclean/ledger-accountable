@@ -1,8 +1,8 @@
 # LedgerAccountable adds ledger functionality to any model that acts as an item in a ledger.
 #
 # It supports tracking two types of ledger entries:
-# 1. Debits: items which decrease the ledger balance (for example, an item being sold)
-# 2. Credits: items which increase the ledger balance (for example, a payment taken)
+# 1. Debits: outgoing items which decrease the ledger balance (for example, an item being sold)
+# 2. Credits: incoming items which increase the ledger balance (for example, a payment taken)
 #
 # Usage:
 # Include LedgerAccountable in a model to have it generate ledger entries based on its
@@ -87,7 +87,7 @@ module LedgerAccountable
     # the name of the attribute or method which determines the ledger amount
     class_attribute :ledger_net_amount_method
     # the type of ledger entry to create - debit or credit
-    class_attribute :ledger_type
+    class_attribute :transaction_type
     # attributes of the LedgerAccountable that should trigger a ledger entry when changed
     class_attribute :ledger_attributes
   end
@@ -97,7 +97,7 @@ module LedgerAccountable
     # to be updated when the provided attributes (or ledger owner) are changed
     def track_ledger(ledger_owner, options = {})
       validate_and_assign_ledger_owner(ledger_owner)
-      validate_and_assign_entry_type(options)
+      validate_and_assign_transaction_type(options)
       validate_and_assign_ledger_amount_attribute(options)
       validate_net_amount_method(options)
       validate_and_assign_ledger_attributes(options)
@@ -112,13 +112,13 @@ module LedgerAccountable
       self.ledger_owner = ledger_owner
     end
 
-    def validate_and_assign_entry_type(options)
+    def validate_and_assign_transaction_type(options)
       if options[:type].present?
         raise 'LedgerAccountable type must be :debit or :credit' unless %i[debit credit].include?(options[:type])
 
-        self.ledger_type = options[:type]
+        self.transaction_type = options[:type]
       else
-        self.ledger_type = :credit
+        self.transaction_type = :credit
       end
     end
 
@@ -162,7 +162,7 @@ module LedgerAccountable
             "LedgerAccountable model '#{model_name}' specified #{self.class.ledger_amount_attribute} for track_ledger :amount, but does not implement #{self.class.ledger_amount_attribute}"
     end
 
-    ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
+    ledger_amount_multiplier = self.class.transaction_type == :credit ? 1 : -1
     ledger_amount_multiplier * (send(self.class.ledger_amount_attribute) || 0)
   end
 
@@ -180,7 +180,7 @@ but did not provide an option for :net_amount. This can lead to unexpected ledge
 "
       end
       previous_ledger_amount = attribute_was(self.class.ledger_amount_attribute)
-      ledger_amount_multiplier = self.class.ledger_type == :credit ? 1 : -1
+      ledger_amount_multiplier = self.class.transaction_type == :credit ? 1 : -1
       ledger_amount_multiplier * (ledger_amount - (previous_ledger_amount || 0))
     end
   end
@@ -305,6 +305,7 @@ but did not provide an option for :net_amount. This can lead to unexpected ledge
             # which will rollback the attempt to save the LedgerAccountable object
             owner: owner,
             ledger_item: self,
+            transaction_type: self.transaction_type,
             entry_type: entry_type,
             amount_cents: amount,
             metadata: metadata
@@ -379,3 +380,4 @@ but did not provide an option for :net_amount. This can lead to unexpected ledge
     @_destroy_callback_already_called ||= false
   end
 end
+

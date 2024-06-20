@@ -6,9 +6,11 @@ class LedgerEntry < ActiveRecord::Base
   belongs_to :ledger_item, polymorphic: true, optional: false
 
   enum entry_type: { addition: 0, deletion: 1, modification: 2 }
+  enum transaction_type: { debit: 0, credit: 1 }
 
   store :metadata, coder: JSON
 
+  validates :transaction_type, presence: true
   validates :amount_cents, presence: true
   validates :entry_type, presence: true
 
