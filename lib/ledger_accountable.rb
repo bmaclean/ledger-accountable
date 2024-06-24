@@ -162,7 +162,6 @@ module LedgerAccountable
             "LedgerAccountable model '#{model_name}' specified #{self.class.ledger_amount_attribute} for track_ledger :amount, but does not implement #{self.class.ledger_amount_attribute}"
     end
 
-    ledger_amount_multiplier = self.class.transaction_type == :credit ? 1 : -1
     ledger_amount_multiplier * (send(self.class.ledger_amount_attribute) || 0)
   end
 
@@ -170,7 +169,8 @@ module LedgerAccountable
   # stored on the LedgerAccountable object
   def net_ledger_amount
     if self.class.ledger_net_amount_method
-      send(self.class.ledger_net_amount_method)
+      net_amount_result = send(self.class.ledger_net_amount_method)
+      ledger_amount_multiplier * net_amount_result
     else
       unless attribute_method?(self.class.ledger_amount_attribute.to_s)
         # if a method is provided to compute ledger_amount,
@@ -179,9 +179,9 @@ LedgerAccountable model '#{model_name}' appears to use a method for track_ledger
 but did not provide an option for :net_amount. This can lead to unexpected ledger entry amounts when modifying #{model_name}.
 "
       end
-      previous_ledger_amount = attribute_was(self.class.ledger_amount_attribute)
-      ledger_amount_multiplier = self.class.transaction_type == :credit ? 1 : -1
-      ledger_amount_multiplier * (ledger_amount - (previous_ledger_amount || 0))
+
+      previous_ledger_amount = ledger_amount_multiplier * attribute_was(self.class.ledger_amount_attribute)
+      ledger_amount - (previous_ledger_amount || 0)
     end
   end
 
@@ -351,6 +351,10 @@ but did not provide an option for :net_amount. This can lead to unexpected ledge
     else
       false
     end
+  end
+
+  def ledger_amount_multiplier
+    self.class.transaction_type == :credit ? 1 : -1
   end
 
   # An overrideable method to determine if the object should be persisted in the ledger

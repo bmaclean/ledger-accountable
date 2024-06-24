@@ -47,7 +47,30 @@ class LedgerAccountableTest < ActiveSupport::TestCase
     assert_equal(-payment.amount, last_entry.amount_cents)
   end
 
-  test 'creates a modification ledger entry when an order item is updated' do
+  test 'creates a modification ledger entry when a debit ledger item is updated' do
+    order = Order.create!
+    refund = Refund.create!(order: order, amount: 10_00)
+    previous_amount = refund.amount
+
+    assert_difference 'LedgerEntry.count', 1 do
+      refund.update(amount: 15_00)
+    end
+
+    last_entry = LedgerEntry.last
+    assert_equal 'modification', last_entry.entry_type
+    assert_equal(refund.amount - previous_amount, -last_entry.amount_cents)
+  end
+
+  test 'does not a modification ledger entry when a debit ledger item is updated, but the net amount remains the same' do
+    order = Order.create!
+    refund = Refund.create!(order: order, amount: 10_00)
+
+    assert_difference 'LedgerEntry.count', 0 do
+      refund.update(updated_at: 1.day.ago)
+    end
+  end
+
+  test 'creates a modification ledger entry when a computed debit ledger item is updated' do
     order = Order.create!
     order_item = OrderItem.create!(order: order, quantity: 3, unit_price: 10)
     previous_cost = order_item.cost
@@ -58,10 +81,19 @@ class LedgerAccountableTest < ActiveSupport::TestCase
 
     last_entry = LedgerEntry.last
     assert_equal 'modification', last_entry.entry_type
-    assert_equal(order_item.cost - previous_cost, last_entry.amount_cents)
+    assert_equal(order_item.cost - previous_cost, -last_entry.amount_cents)
   end
 
-  test 'creates a modification ledger entry when a payment is updated' do
+  test 'does not a modification ledger entry when a computed debit ledger item is updated, but the net amount remains the same' do
+    order = Order.create!
+    order_item = OrderItem.create!(order: order, quantity: 3, unit_price: 10)
+
+    assert_difference 'LedgerEntry.count', 0 do
+      order_item.update(updated_at: 1.day.ago)
+    end
+  end
+
+  test 'creates a modification ledger entry when a credit ledger item is updated' do
     order = Order.create!
     payment = Payment.create!(order: order, amount: 30)
     previous_amount = payment.amount
@@ -73,6 +105,15 @@ class LedgerAccountableTest < ActiveSupport::TestCase
     last_entry = LedgerEntry.last
     assert_equal 'modification', last_entry.entry_type
     assert_equal(payment.amount - previous_amount, last_entry.amount_cents)
+  end
+
+  test 'does not a modification ledger entry when a credit ledger item is updated, but the net amount remains the same' do
+    order = Order.create!
+    payment = Payment.create!(order: order, amount: 30)
+
+    assert_difference 'LedgerEntry.count', 0 do
+      payment.update(updated_at: 3.days.from_now)
+    end
   end
 
   test 'raises an error if ledger owner is not specified' do

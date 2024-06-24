@@ -21,6 +21,12 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 
+  create_table :refunds, force: true do |t|
+    t.references :order, foreign_key: true
+    t.integer :amount
+    t.timestamps
+  end
+
   create_table :ledger_entries do |t|
     t.references :owner, polymorphic: true, null: false
     t.references :ledger_item, polymorphic: true, null: false
@@ -70,4 +76,12 @@ class Payment < ActiveRecord::Base
   belongs_to :order
 
   track_ledger :order, amount: :amount, type: :credit
+end
+
+class Refund < ActiveRecord::Base
+  include LedgerAccountable
+
+  belongs_to :order
+
+  track_ledger :order, amount: :amount, type: :debit
 end
