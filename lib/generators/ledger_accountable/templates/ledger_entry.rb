@@ -14,6 +14,9 @@ class LedgerEntry < ActiveRecord::Base
   validates :amount_cents, presence: true
   validates :entry_type, presence: true
 
+  scope :debits, -> { where(transaction_type: :debit) }
+  scope :credits, -> { where(transaction_type: :credit) }
+
   def to_itemized_s(line_type = :line)
     I18n.t! "#{TRANSLATION_PREFIX}.#{ledger_item_type.constantize.model_name.param_key}.#{line_type}",
             metadata.symbolize_keys
