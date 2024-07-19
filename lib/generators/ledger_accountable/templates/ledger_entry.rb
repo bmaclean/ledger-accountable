@@ -18,8 +18,8 @@ class LedgerEntry < ActiveRecord::Base
   scope :credits, -> { where(transaction_type: :credit) }
 
   def to_itemized_s(line_type = :line)
-    I18n.t! "#{TRANSLATION_PREFIX}.#{ledger_item_type.constantize.model_name.param_key}.#{line_type}",
-            metadata.symbolize_keys
+    I18n.t!("f#{TRANSLATION_PREFIX}.#{ledger_item_type.constantize.model_name.param_key}.#{line_type}",
+            **metadata.symbolize_keys)
   rescue I18n::MissingTranslationData, I18n::MissingInterpolationArgument
     I18n.t "#{TRANSLATION_PREFIX}.default.#{line_type}",
            default: ledger_item_type,
