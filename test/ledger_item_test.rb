@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class LedgerAccountableTest < ActiveSupport::TestCase
+class LedgerItemTest  < ActiveSupport::TestCase
   test 'creates a ledger entry when an order item is added' do
     order = Order.create!
     order_item = OrderItem.new(order: order, quantity: 3, unit_price: 10)
@@ -118,18 +118,18 @@ class LedgerAccountableTest < ActiveSupport::TestCase
 
   test 'raises an error if ledger owner is not specified' do
     class MyModel < ActiveRecord::Base
-      include LedgerAccountable
+      include LedgerAccountable::LedgerItem
     end
     err = assert_raises(RuntimeError) do
       MyModel.track_ledger(nil)
     end
 
-    assert_equal 'LedgerAccountable model LedgerAccountableTest::MyModel must respond to the provided value for ledger_owner ().', err.message
+    assert_equal 'LedgerAccountable::LedgerItem model LedgerItemTest::MyModel must respond to the provided value for ledger_owner ().', err.message
   end
 
   test 'raises an error if ledger amount attribute is not specified' do
     class MyModel < ActiveRecord::Base
-      include LedgerAccountable
+      include LedgerAccountable::LedgerItem
 
       belongs_to :order
     end
@@ -138,7 +138,7 @@ class LedgerAccountableTest < ActiveSupport::TestCase
       MyModel.track_ledger(:order)
     end
 
-    assert_equal 'track_ledger :amount is required in LedgerAccountableTest::MyModel', err.message
+    assert_equal 'track_ledger :amount is required in LedgerItemTest::MyModel', err.message
   end
 
   test 'defaults transaction_type to credit if not specified' do

@@ -26,17 +26,32 @@ $ rails generate ledger_accountable
 
 ## Usage
 
-Include `LedgerAccountable` in any model to enable ledger accounting functionality.
+### `LedgerAccountable::LedgerOwner`
+
+Include `LedgerAccountable::LedgerOwner` in any model which maintains a ledger - that is, a model whose instances have a sum balance of debits and credits based on the values of Ledger Item associations.
 
 ```ruby
-class Order < ApplicationRecord
+class Order < ActiveRecord::Base
+  include LedgerAccountable::LedgerOwner
+
   has_many :ledger_entries, as: :owner
   has_many :order_items, dependent: :destroy
   has_many :payments, dependent: :destroy
 end
+```
 
-class OrderItem < ApplicationRecord
-  include LedgerAccountable
+### `LedgerAccountable::LedgerItem`
+
+Include `LedgerAccountable::LedgerItem` in any associated model of a `LedgerAccountable::LedgerOwner` to trigger ledger entries when:
+
+- Instances of that model are associated to the Ledger Owner
+- Instances of that model are unassociated from the Ledger Owner
+- Associated instances of that model are changed
+- Associated instances of that model are destroyed
+
+```ruby
+class OrderItem < ActiveRecord::Base
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 
@@ -46,6 +61,7 @@ class OrderItem < ApplicationRecord
                amount: :cost,
                net_amount: :net_cost_change,
                type: :debit
+
   def cost
     quantity * unit_price
   end
@@ -57,13 +73,23 @@ class OrderItem < ApplicationRecord
   end
 end
 
-
-class Payment < ApplicationRecord
-  include LedgerAccountable
+class Payment < ActiveRecord::Base
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 
   # Track ledger changes on order with the amount attribute and mark it as a credit
   track_ledger :order, amount: :amount, type: :credit
 end
+
+class Refund < ActiveRecord::Base
+  include LedgerAccountable::LedgerItem
+
+  belongs_to :order
+
+  # Track ledger changes on order with the amount attribute and mark it as a debit
+  track_ledger :order, amount: :amount, type: :debit
+end
 ```
+
+<!-- TODO: documentation for alternate object destruction libraries: callbacks to trigger ledger removal for objects that aren't destroyed -->

@@ -50,7 +50,7 @@ class Order < ActiveRecord::Base
 end
 
 class OrderItem < ActiveRecord::Base
-  include LedgerAccountable
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 
@@ -71,7 +71,7 @@ class OrderItem < ActiveRecord::Base
 end
 
 class Payment < ActiveRecord::Base
-  include LedgerAccountable
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 
@@ -79,7 +79,7 @@ class Payment < ActiveRecord::Base
 end
 
 class Refund < ActiveRecord::Base
-  include LedgerAccountable
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 

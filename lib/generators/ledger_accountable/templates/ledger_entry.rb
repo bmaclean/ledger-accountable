@@ -16,6 +16,7 @@ class LedgerEntry < ActiveRecord::Base
 
   scope :debits, -> { where(transaction_type: :debit) }
   scope :credits, -> { where(transaction_type: :credit) }
+  scope :with_ledger_item_type, -> (type) { where(ledger_item_type: type) }
 
   def to_itemized_s(line_type = :line)
     I18n.t!("#{TRANSLATION_PREFIX}.#{ledger_item_type.constantize.model_name.param_key}.#{line_type}",
