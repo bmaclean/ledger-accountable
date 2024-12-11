@@ -260,8 +260,7 @@ class LedgerItemTest < ActiveSupport::TestCase
       def build_ledger_metadata
         {
           user_id: 1,
-          payment_method: 'credit_card',
-          timestamp: Time.current.to_i
+          payment_method: 'credit_card'
         }
       end
     end
@@ -273,7 +272,6 @@ class LedgerItemTest < ActiveSupport::TestCase
       assert_not_nil entry.metadata
       assert_equal 1, entry.metadata['user_id']
       assert_equal 'credit_card', entry.metadata['payment_method']
-      assert_kind_of Integer, entry.metadata['timestamp']
     end
 
     test 'preserves metadata through modifications' do
