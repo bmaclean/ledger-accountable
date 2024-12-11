@@ -40,17 +40,14 @@ ActiveRecord::Schema.define do
 end
 
 class Order < ActiveRecord::Base
-  has_many :ledger_entries, as: :owner
+  include LedgerAccountable::LedgerOwner
+
   has_many :order_items, dependent: :destroy
   has_many :payments, dependent: :destroy
-
-  def balance
-    ledger_entries.sum(:amount_cents)
-  end
 end
 
 class OrderItem < ActiveRecord::Base
-  include LedgerAccountable
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 
@@ -71,7 +68,7 @@ class OrderItem < ActiveRecord::Base
 end
 
 class Payment < ActiveRecord::Base
-  include LedgerAccountable
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 
@@ -79,7 +76,7 @@ class Payment < ActiveRecord::Base
 end
 
 class Refund < ActiveRecord::Base
-  include LedgerAccountable
+  include LedgerAccountable::LedgerItem
 
   belongs_to :order
 

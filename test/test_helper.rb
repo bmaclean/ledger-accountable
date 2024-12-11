@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'rails'
 require 'active_record'
@@ -10,7 +12,7 @@ class ActiveSupport::TestCase
     before = eval(expression)
     yield
     after = eval(expression)
-    assert_equal(before + difference, after)
+    assert_equal(difference, after - before)
   end
 end
 
