@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir['{app,config,lib}/**/*', 'CHANGELOG.md', 'LICENSE', 'README.md']
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 3.0.7'
+  spec.required_ruby_version = '>= 3.0.6'
 
   # Runtime dependencies
   spec.add_dependency 'activerecord', '>= 6.0.0', '< 8'
