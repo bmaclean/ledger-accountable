@@ -1,0 +1,27 @@
+AllCops:
+  NewCops: enable
+
+Layout/LineLength:
+  AutoCorrect: true
+  IgnoredPatterns: ['(\A|\s)#']
+
+Layout/MultilineHashKeyLineBreaks:
+  Enabled: true
+
+Layout/MultilineMethodArgumentLineBreaks:
+  Enabled: true
+
+Style/MultilineTernaryOperator:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/MethodLength:
+  Max: 25
+
+# remove me with Ruby 3.4
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  SafeAutoCorrect: true
