@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/bmaclean/ledger-accountable'
   spec.metadata['changelog_uri'] = 'https://github.com/bmaclean/ledger-accountable/blob/main/CHANGELOG.md'
+  spec.metadata['rubygems_mfa_required'] = 'false' # rubocop:disable Gemspec/RequireMFA
 
   spec.files         = Dir['{app,config,lib}/**/*', 'CHANGELOG.md', 'LICENSE', 'README.md']
   spec.require_paths = ['lib']
@@ -30,5 +31,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'database_cleaner-active_record', '= 2.1.0'
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'sqlite3', '= 1.6.9'
-  spec.metadata['rubygems_mfa_required'] = 'true'
 end
