@@ -29,7 +29,7 @@ class GeneratorTemplatesTest < ActiveSupport::TestCase
   end
 
   def test_generator_exposes_add_indexes_option
-    add_indexes_option = LedgerAccountableGenerator.class_options['add_indexes']
+    add_indexes_option = LedgerAccountableGenerator.class_options[:add_indexes]
 
     refute_nil add_indexes_option
     assert_equal false, add_indexes_option.default
