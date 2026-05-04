@@ -24,6 +24,12 @@ To create the requisite migrations and models, run:
 $ rails generate ledger_accountable
 ```
 
+For existing installations that already have `ledger_entries`, generate only the additive index migration:
+
+```bash
+$ rails generate ledger_accountable --add-indexes
+```
+
 ## Usage
 
 ### `LedgerAccountable::LedgerOwner`
@@ -113,5 +119,22 @@ Ledger entries are automatically created in the following scenarios:
 - **`:modification`** - When an item's amount changes
 
 When a LedgerItem changes owners, both a `deletion` entry for the old owner and an `addition` entry for the new owner are created in the same transaction
+
+## Upgrading Existing Installations
+
+Existing apps should run:
+
+```bash
+$ rails generate ledger_accountable --add-indexes
+```
+
+This generates an additive migration that adds the default read-performance indexes for `ledger_entries`:
+
+- `[:owner_type, :owner_id, :transaction_type]`
+- `[:owner_type, :owner_id, :entry_type]`
+- `[:owner_type, :owner_id, :created_at, :id]`
+- `[:ledger_item_type, :ledger_item_id, :created_at, :id]`
+
+For PostgreSQL, indexes are added with `algorithm: :concurrently`. Other adapters use standard `add_index`.
 
 <!-- TODO: documentation for alternate object destruction libraries: callbacks to trigger ledger removal for objects that aren't destroyed -->
