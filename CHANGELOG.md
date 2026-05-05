@@ -1,3 +1,7 @@
+## 0.1.6.pre
+
+- Pin GitHub Actions workflows to `ubuntu-22.04` to restore Ruby `3.0.6` compatibility for CI and gem publishing.
+
 ## 0.1.5.pre
 
 - Add default `ledger_entries` read-performance indexes to new-install generator migration.
