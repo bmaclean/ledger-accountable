@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ledger_accountable (0.1.8.pre)
+    ledger_accountable (0.1.9.pre)
       activerecord (>= 6.0.0, < 8)
       activesupport (>= 6.0.0, < 8)
 
@@ -231,4 +231,4 @@ DEPENDENCIES
   sqlite3 (= 1.6.9)
 
 BUNDLED WITH
-   2.3.0
+   2.4.22
