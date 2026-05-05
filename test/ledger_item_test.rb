@@ -211,7 +211,7 @@ class LedgerItemTest < ActiveSupport::TestCase
         payment.update!(order: @order)
       end
 
-      entry_types = LedgerEntry.order(:created_at).pluck(:entry_type)
+      entry_types = payment.ledger_entries.order(:created_at).pluck(:entry_type)
       # 1. :addition - original creation
       # 2. :deletion - remove from original order ledger
       # 3. :addition - add to order2 ledger
