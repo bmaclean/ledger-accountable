@@ -1,18 +1,15 @@
-name: Ruby Gem
+name: Ruby Gem Dry Run
 
 on:
-  push:
+  pull_request:
     branches: [ "main" ]
-    paths:
-      - lib/ledger_accountable/version.rb
 
 jobs:
-  publish:
-    name: Build + Publish
+  dry-run:
+    name: Build + Publish (Dry Run)
     runs-on: ubuntu-22.04
     permissions:
-      contents: write
-      id-token: write
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -29,6 +26,12 @@ jobs:
       with:
         ruby-version: 3.3.10
         bundler-cache: true
-
-    - name: Publish to RubyGems
-      uses: rubygems/release-gem@v1
+    - name: Build gem package
+      run: |
+        rm -rf pkg
+        bundle exec rake build
+    - name: Upload dry-run artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-gem
+        path: pkg/*.gem
