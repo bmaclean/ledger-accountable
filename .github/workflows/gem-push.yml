@@ -5,10 +5,45 @@ on:
     branches: [ "main" ]
     paths:
       - lib/ledger_accountable/version.rb
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build:
+  dry-run:
+    name: Build + Publish (Dry Run)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Verify lockfile matches gem version
+      run: |
+        VERSION="$(grep -E "VERSION = '[^']+'" lib/ledger_accountable/version.rb | sed -E "s/.*'([^']+)'.*/\1/")"
+        LOCK_VERSION="$(grep -m1 -E "^    ledger_accountable \([^)]+\)" Gemfile.lock | sed -E "s/.*\(([^)]+)\).*/\1/")"
+        if [ "${VERSION}" != "${LOCK_VERSION}" ]; then
+          echo "::error::Gem version (${VERSION}) does not match Gemfile.lock path spec (${LOCK_VERSION}). Run bundle lock and commit Gemfile.lock with the version bump."
+          exit 1
+        fi
+    - name: Set up Ruby 3.3.10
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.3.10
+        bundler-cache: true
+    - name: Build gem package
+      run: |
+        rm -rf pkg
+        bundle exec rake build
+    - name: Upload dry-run artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-gem
+        path: pkg/*.gem
+
+  publish:
     name: Build + Publish
+    if: github.event_name == 'push'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -24,13 +59,10 @@ jobs:
           echo "::error::Gem version (${VERSION}) does not match Gemfile.lock path spec (${LOCK_VERSION}). Run bundle lock and commit Gemfile.lock with the version bump."
           exit 1
         fi
-    - name: Set up Ruby 3.3
-    # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
-    # change this to (see https://github.com/ruby/setup-ruby#versioning):
-    # uses: ruby/setup-ruby@v1
-      uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
+    - name: Set up Ruby 3.3.10
+      uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 3.3
+        ruby-version: 3.3.10
         bundler-cache: true
 
     - name: Publish to RubyGems
