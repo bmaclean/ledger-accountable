@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Ledger accounting for Rails models'
   spec.description   = 'LedgerAccountable is a gem for recording ledger entries to store an accounting history in your Rails models.'
+  spec.license       = 'MIT'
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/bmaclean/ledger-accountable'
