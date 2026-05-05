@@ -16,6 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Verify lockfile matches gem version
+      run: |
+        VERSION="$(grep -E "VERSION = '[^']+'" lib/ledger_accountable/version.rb | sed -E "s/.*'([^']+)'.*/\1/")"
+        LOCK_VERSION="$(grep -m1 -E "^    ledger_accountable \([^)]+\)" Gemfile.lock | sed -E "s/.*\(([^)]+)\).*/\1/")"
+        if [ "${VERSION}" != "${LOCK_VERSION}" ]; then
+          echo "::error::Gem version (${VERSION}) does not match Gemfile.lock path spec (${LOCK_VERSION}). Run bundle lock and commit Gemfile.lock with the version bump."
+          exit 1
+        fi
     - name: Set up Ruby 3.0.6
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
