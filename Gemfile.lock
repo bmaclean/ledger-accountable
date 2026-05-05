@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ledger_accountable (0.1.11.pre)
+    ledger_accountable (0.1.10.pre)
       activerecord (>= 6.0.0, < 8)
       activesupport (>= 6.0.0, < 8)
 
