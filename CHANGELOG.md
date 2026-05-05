@@ -1,3 +1,7 @@
+## 0.1.7.pre
+
+- Add `spec.license = 'MIT'` to gemspec to satisfy RubyGems license metadata expectations.
+
 ## 0.1.6.pre
 
 - Pin GitHub Actions workflows to `ubuntu-22.04` to restore Ruby `3.0.6` compatibility for CI and gem publishing.
