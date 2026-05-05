@@ -24,14 +24,13 @@ jobs:
           echo "::error::Gem version (${VERSION}) does not match Gemfile.lock path spec (${LOCK_VERSION}). Run bundle lock and commit Gemfile.lock with the version bump."
           exit 1
         fi
-    - name: Set up Ruby 3.0.6
+    - name: Set up Ruby 3.3
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
     # uses: ruby/setup-ruby@v1
       uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
       with:
-        ruby-version: 3.0.6
-        bundler: 2.4.22
+        ruby-version: 3.3
         bundler-cache: true
 
     - name: Publish to RubyGems
